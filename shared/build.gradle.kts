@@ -1,0 +1,95 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+
+plugins {
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinx.serialization)
+    id("com.codingfeline.buildkonfig") version "0.17.1"
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use { load(it) }
+    }
+}
+
+buildkonfig {
+    packageName = "io.dala.pawapaykotlin"
+    defaultConfigs {
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            "API_TOKEN",
+            localProperties.getProperty("PAWAPAY_API_TOKEN") ?: ""
+        )
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN,
+            "IS_SANDBOX",
+            localProperties.getProperty("IS_SANDBOX") ?: ""
+        )
+    }
+}
+
+kotlin {
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+    
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
+    
+    jvm()
+    
+    sourceSets {
+        androidMain.dependencies {
+            //android engine
+            implementation(libs.ktor.client.okhttp)
+            //koin
+            implementation(libs.koin.androidx.compose)
+        }
+        commonMain.dependencies {
+            //ktor core & serialization
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.serialization.json)
+            //dates
+            implementation(libs.kotlinx.datetime)
+            //koin
+            api(libs.koin.core)
+            implementation(libs.koin.compose.multiplatform)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.ktor.client.logging)
+        }
+        iosMain.dependencies {
+            //engine for iOS
+            implementation(libs.ktor.client.darwin)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+    }
+}
+
+android {
+    namespace = "io.dala.pawapaykotlin.shared"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
