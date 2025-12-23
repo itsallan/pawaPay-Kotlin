@@ -2,17 +2,41 @@
 
 A lightweight Kotlin Multiplatform (KMP) SDK for integrating **pawaPay v2** mobile money payments into Android and iOS applications.
 
-## Configuration
 
-Initialize the SDK in your platform entry point (e.g., `MainActivity.kt`):
+## Installation
+
+### 1. Add the JitPack repository
+In your `settings.gradle.kts` (or your root `build.gradle.kts`), add the JitPack repository:
 
 ```kotlin
-initKoin()
+repositories {
+    mavenCentral()
+    maven { url = uri("[https://jitpack.io](https://jitpack.io)") }
+}
+```
+### 2. Add the dependency
+In your `shared` module (or `commonMain`) `build.gradle.kts`, add the pawaPay SDK:
+
+```kotlin
+sourceSets {
+    commonMain.dependencies {
+        implementation("com.github.itsallan:PawapayKotlin:1.0.0-alpha")
+    }
+}
 ```
 
 ## Usage
 
-### 1. Initiate a Deposit
+Initialize the SDK in your platform entry point (e.g., `MainActivity.kt` or `MainViewController.kt`) by providing your environment credentials:
+
+```kotlin
+initKoin(
+    baseUrl = "https://api.sandbox.pawapay.io/v2/",
+    apiToken = "YOUR_PAWAPAY_TOKEN"
+)
+```
+
+### Initiate a Deposit
 Request a payment from a user by specifying the amount, phone number, and provider.
 
 
@@ -33,7 +57,7 @@ result.onSuccess { depositResponse ->
 }
 ```
 
-### 2. Poll for Final Status
+### Poll for Final Status
 Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED` or `FAILED`).
 
 ```kotlin
