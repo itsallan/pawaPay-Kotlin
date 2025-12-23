@@ -1,6 +1,5 @@
 package io.dala.pawapaykotlin.di
 
-import io.dala.pawapaykotlin.BuildKonfig
 import io.dala.pawapaykotlin.network.PawaPayApi
 import io.dala.pawapaykotlin.repository.PawaPayRepository
 import io.dala.pawapaykotlin.repository.PawaPayRepositoryImpl
@@ -18,7 +17,7 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
-val appModule = module {
+fun appModule(baseUrl: String, apiToken: String) = module {
     single {
         HttpClient {
             install(Logging) {
@@ -33,12 +32,8 @@ val appModule = module {
                 })
             }
             defaultRequest {
-                val baseUrl = if (BuildKonfig.IS_SANDBOX)
-                    "https://api.sandbox.pawapay.io/v2/"
-                else
-                    "https://api.pawapay.io/v2/"
                 url(baseUrl)
-                header("Authorization", "Bearer ${BuildKonfig.API_TOKEN}")
+                header("Authorization", "Bearer $apiToken")
                 header("Content-Type", "application/json")
             }
         }
@@ -47,7 +42,11 @@ val appModule = module {
     single<PawaPayRepository> { PawaPayRepositoryImpl(api = get()) }
 }
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
+fun initKoin(
+    baseUrl: String,
+    apiToken: String,
+    appDeclaration: KoinAppDeclaration = {}
+) = startKoin {
     appDeclaration()
-    modules(appModule)
+    modules(appModule(baseUrl, apiToken))
 }

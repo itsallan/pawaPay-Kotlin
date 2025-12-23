@@ -15,7 +15,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         if (GlobalContext.getOrNull() == null) {
-            initKoin()
+            initKoin(
+                baseUrl = if (BuildKonfig.IS_SANDBOX)
+                    "https://api.sandbox.pawapay.io/v2/"
+                else
+                    "https://api.pawapay.io/v2/",
+                apiToken = BuildKonfig.API_TOKEN
+            )
         }
 
         setContent {

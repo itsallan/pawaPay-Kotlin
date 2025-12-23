@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinx.serialization)
     id("com.codingfeline.buildkonfig") version "0.17.1"
+    id("maven-publish")
 }
 
 val localProperties = Properties().apply {
@@ -22,12 +23,14 @@ buildkonfig {
         buildConfigField(
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             "API_TOKEN",
-            localProperties.getProperty("PAWAPAY_API_TOKEN") ?: ""
+            System.getenv("PAWAPAY_API_TOKEN") ?: localProperties.getProperty("PAWAPAY_API_TOKEN") ?: ""
         )
         buildConfigField(
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN,
             "IS_SANDBOX",
-            localProperties.getProperty("IS_SANDBOX") ?: ""
+            (System.getenv("IS_SANDBOX")?.toBoolean()
+                ?: localProperties.getProperty("IS_SANDBOX")?.toBoolean()
+                ?: true).toString()
         )
     }
 }
@@ -78,6 +81,24 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            val kotlinMultiplatform = components.findByName("kotlinMultiplatform")
+
+            create<MavenPublication>("maven") {
+                groupId = "com.github.itsallan"
+                artifactId = "pawapay-kotlin"
+                version = "1.0.0-alpha"
+
+                if (kotlinMultiplatform != null) {
+                    from(kotlinMultiplatform)
+                }
+            }
         }
     }
 }
