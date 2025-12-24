@@ -11,17 +11,26 @@ In your `settings.gradle.kts` (or your root `build.gradle.kts`), add the JitPack
 ```kotlin
 repositories {
     mavenCentral()
-    maven { url = uri("[https://jitpack.io](https://jitpack.io)") }
+    maven { url = uri("https://jitpack.io") }
 }
 ```
 ### 2. Add the dependency
-In your `shared` module (or `commonMain`) `build.gradle.kts`, add the pawaPay SDK:
+Add this to your `commonMain` source set:
 
 ```kotlin
 sourceSets {
     commonMain.dependencies {
         implementation("com.github.itsallan:PawapayKotlin:1.0.0-alpha")
     }
+}
+```
+
+#### For Pure Android Projects
+If you are using this in a standard Android app, use the `-android` suffix to ensure correct library resolution:
+
+```kotlin
+dependencies {
+    implementation("com.github.itsallan:PawapayKotlin-android:1.0.0-alpha")
 }
 ```
 

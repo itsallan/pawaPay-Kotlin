@@ -93,13 +93,19 @@ afterEvaluate {
             create<MavenPublication>("maven") {
                 groupId = "com.github.itsallan"
                 artifactId = "pawapay-kotlin"
-                version = "1.0.0-alpha"
+                version = "1.0.0-alpha02"
 
                 if (kotlinMultiplatform != null) {
                     from(kotlinMultiplatform)
                 }
             }
         }
+    }
+}
+
+configurations.matching { it.name.contains("ios", ignoreCase = true) }.all {
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, "java-api"))
     }
 }
 
