@@ -20,7 +20,7 @@ Add this to your `commonMain` source set:
 ```kotlin
 sourceSets {
     commonMain.dependencies {
-        implementation("com.github.itsallan:PawapayKotlin:1.0.0-alpha")
+        implementation("com.github.itsallan:PawapayKotlin:1.0.0-alpha2")
     }
 }
 ```
@@ -30,7 +30,7 @@ If you are using this in a standard Android app, use the `-android` suffix to en
 
 ```kotlin
 dependencies {
-    implementation("com.github.itsallan:PawapayKotlin-android:1.0.0-alpha")
+    implementation("com.github.itsallan:PawapayKotlin-android:1.0.0-alpha2")
 }
 ```
 
