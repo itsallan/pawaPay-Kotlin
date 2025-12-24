@@ -44,16 +44,16 @@ kotlin {
     }
 
     withSourcesJar()
-    
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
-        }
-    }
+//
+//    listOf(
+//        iosArm64(),
+//        iosSimulatorArm64()
+//    ).forEach { iosTarget ->
+//        iosTarget.binaries.framework {
+//            baseName = "Shared"
+//            isStatic = true
+//        }
+//    }
     
     jvm()
     
@@ -96,7 +96,7 @@ afterEvaluate {
             create<MavenPublication>("maven") {
                 groupId = "com.github.itsallan"
                 artifactId = "shared"
-                version = "1.0.0-alpha03"
+                version = "1.0.0-alpha04"
 
                 if (kotlinMultiplatform != null) {
                     from(kotlinMultiplatform)
