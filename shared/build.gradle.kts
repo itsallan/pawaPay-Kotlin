@@ -37,10 +37,13 @@ buildkonfig {
 
 kotlin {
     androidTarget {
+        publishLibraryVariants("release")
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
+
+    withSourcesJar()
     
     listOf(
         iosArm64(),
@@ -92,8 +95,8 @@ afterEvaluate {
 
             create<MavenPublication>("maven") {
                 groupId = "com.github.itsallan"
-                artifactId = "pawapay-kotlin"
-                version = "1.0.0-alpha02"
+                artifactId = "shared"
+                version = "1.0.0-alpha03"
 
                 if (kotlinMultiplatform != null) {
                     from(kotlinMultiplatform)

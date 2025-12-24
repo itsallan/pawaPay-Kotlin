@@ -2,6 +2,7 @@
 
 A lightweight Kotlin Multiplatform (KMP) SDK for integrating **pawaPay v2** mobile money payments into Android and iOS applications.
 
+[![](https://jitpack.io/v/itsallan/PawapayKotlin.svg)](https://jitpack.io/#itsallan/PawapayKotlin)
 
 ## Installation
 
@@ -20,17 +21,17 @@ Add this to your `commonMain` source set:
 ```kotlin
 sourceSets {
     commonMain.dependencies {
-        implementation("com.github.itsallan:PawapayKotlin:1.0.0-alpha2")
+        implementation("com.github.itsallan.PawapayKotlin:shared:1.0.0-alpha03")
     }
 }
 ```
 
 #### For Pure Android Projects
-If you are using this in a standard Android app, use the `-android` suffix to ensure correct library resolution:
+If you are using this in a standard Android app:
 
 ```kotlin
 dependencies {
-    implementation("com.github.itsallan:PawapayKotlin-android:1.0.0-alpha2")
+    implementation("com.github.itsallan.PawapayKotlin:shared-android:1.0.0-alpha03")
 }
 ```
 
