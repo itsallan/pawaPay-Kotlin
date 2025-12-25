@@ -1,16 +1,14 @@
 package io.dala.pawapaykotlin.repository
 
-import io.dala.pawapaykotlin.models.DepositRequest
-import io.dala.pawapaykotlin.models.DepositResponse
-import io.dala.pawapaykotlin.models.Payer
-import io.dala.pawapaykotlin.models.AccountDetails
-import io.dala.pawapaykotlin.models.StatusResponse
+import io.dala.pawapaykotlin.domain.TransactionType
 import io.dala.pawapaykotlin.network.PawaPayApi
+import io.dala.pawapaykotlin.network.dto.deposits.*
+import io.dala.pawapaykotlin.network.dto.payouts.*
+import io.dala.pawapaykotlin.network.dto.shared.*
+import io.dala.pawapaykotlin.util.generateUUID
 import io.ktor.client.plugins.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.delay
-
-expect fun generateUUID(): String
 
 class PawaPayRepositoryImpl(
     private val api: PawaPayApi
@@ -27,7 +25,6 @@ class PawaPayRepositoryImpl(
                 depositId = generateUUID(),
                 amount = amount,
                 currency = currency,
-               // correspondent = provider,
                 payer = Payer(
                     type = "MMO",
                     accountDetails = AccountDetails(
@@ -35,8 +32,7 @@ class PawaPayRepositoryImpl(
                         provider = provider
                     )
                 ),
-                customerMessage = "Payment of $amount $currency",
-                //statementDescription = "Dala Payment"
+                customerMessage = "Payment of $amount $currency"
             )
 
             val response = api.initiateDeposit(request)
@@ -49,10 +45,29 @@ class PawaPayRepositoryImpl(
         }
     }
 
-    override suspend fun getTransactionStatus(depositId: String): Result<StatusResponse> {
+    override suspend fun sendPayout(
+        payoutId: String,
+        amount: String,
+        phoneNumber: String,
+        currency: String,
+        correspondent: String,
+        description: String
+    ): Result<PayoutResponse> {
         return try {
-            val status = api.getStatus(depositId)
-            Result.success(status)
+            val request = PayoutRequest(
+                payoutId = payoutId,
+                amount = amount,
+                currency = currency,
+                correspondent = correspondent,
+                recipient = PayoutRecipient(
+                    address = PayoutAddress(value = phoneNumber)
+                ),
+                statementDescription = description,
+                customerTimestamp = kotlin.time.Clock.System.now().toString()
+            )
+
+            val response = api.initiatePayout(request)
+            Result.success(response)
         } catch (e: ResponseException) {
             val errorBody = e.response.bodyAsText()
             Result.failure(Exception(errorBody))
@@ -61,12 +76,24 @@ class PawaPayRepositoryImpl(
         }
     }
 
-    override suspend fun pollDepositStatus(depositId: String): Result<StatusResponse> {
+    override suspend fun getTransactionStatus(id: String): Result<StatusResponse> {
+        return try {
+            val status = api.getStatus(id)
+            Result.success(status)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun pollTransactionStatus(
+        id: String,
+        type: TransactionType
+    ): Result<StatusResponse> {
         val maxAttempts = 30
         var attempts = 0
 
         while (attempts < maxAttempts) {
-            val statusResult = getTransactionStatus(depositId)
+            val statusResult = getTransactionStatus(id)
 
             statusResult.onSuccess { response ->
                 val actualStatus = response.data?.status ?: response.status
@@ -74,16 +101,15 @@ class PawaPayRepositoryImpl(
                 when (actualStatus) {
                     "COMPLETED" -> return Result.success(response)
                     "FAILED", "REJECTED" -> {
-                        val message = response.data?.failureReason?.failureMessage ?: "Payment failed"
+                        val message = response.data?.failureReason?.failureMessage ?: "Transaction failed"
                         return Result.failure(Exception(message))
                     }
-                    // If "PROCESSING" or "ACCEPTED", the loop continues
                 }
             }
 
             attempts++
             delay(4000)
         }
-        return Result.failure(Exception("Payment timed out"))
+        return Result.failure(Exception("Transaction timed out after $maxAttempts attempts"))
     }
 }

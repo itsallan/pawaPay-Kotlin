@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.dala.pawapaykotlin.models.PaymentUiState
+import io.dala.pawapaykotlin.network.dto.shared.PaymentUiState
 import io.dala.pawapaykotlin.repository.PawaPayRepository
 import kotlinx.coroutines.launch
 

@@ -1,4 +1,4 @@
-package io.dala.pawapaykotlin.models
+package io.dala.pawapaykotlin.network.dto.shared
 
 import kotlinx.serialization.Serializable
 

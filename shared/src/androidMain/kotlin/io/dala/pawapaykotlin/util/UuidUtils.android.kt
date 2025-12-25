@@ -1,4 +1,4 @@
-package io.dala.pawapaykotlin.repository
+package io.dala.pawapaykotlin.util
 
 import java.util.UUID
 
