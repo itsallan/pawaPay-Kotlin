@@ -87,16 +87,16 @@ suspend fun pollPayment(id: String) {
 ##  Roadmap & Capabilities
 
 ### What it handles now
-* **Deposit Initiation**: Support for pawaPay v2 `MMO` (Mobile Money) payments.
-* **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
-* **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
-* **KMP Support**: Shared logic for both Android and iOS targets.
+- [x] **Deposit Initiation**: Support for pawaPay v2 `MMO` (Mobile Money) payments.
+- [x] **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
+- [x] **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
+- [x] **KMP Support**: Shared logic for both Android and iOS targets.
 
 ### Coming Soon (Roadmap)
-* **Payouts (Withdrawals)**: Send money to users directly from the SDK.
-* **Refunds**: Support for initiating and checking refund statuses.
-* **Signature Verification**: Enhanced security for signed API requests.
-* **Payment Page**: Integration with the hosted pawaPay payment page.
+- [ ] **Payouts (Withdrawals)**: Send money to users directly from the SDK.
+- [ ] **Refunds**: Support for initiating and checking refund statuses.
+- [ ] **Signature Verification**: Enhanced security for signed API requests.
+- [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
 
 ---
 
