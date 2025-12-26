@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class PayoutResponse(
     val payoutId: String,
     val status: String,
-    val acceptanceDateTime: String
+    val acceptanceDateTime: String? = null
 )

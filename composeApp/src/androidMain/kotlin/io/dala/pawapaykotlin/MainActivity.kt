@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import io.dala.pawapaykotlin.di.initKoin
 import org.koin.core.context.GlobalContext
 
@@ -16,11 +14,11 @@ class MainActivity : ComponentActivity() {
 
         if (GlobalContext.getOrNull() == null) {
             initKoin(
-                baseUrl = if (BuildKonfig.IS_SANDBOX)
+                baseUrl = if (PawaPayConfig.IS_SANDBOX)
                     "https://api.sandbox.pawapay.io/v2/"
                 else
                     "https://api.pawapay.io/v2/",
-                apiToken = BuildKonfig.API_TOKEN
+                apiToken = PawaPayConfig.API_TOKEN
             )
         }
 

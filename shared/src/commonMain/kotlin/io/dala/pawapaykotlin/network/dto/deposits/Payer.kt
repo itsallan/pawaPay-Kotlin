@@ -1,6 +1,6 @@
 package io.dala.pawapaykotlin.network.dto.deposits
 
-import io.dala.pawapaykotlin.network.dto.payouts.AccountDetails
+import io.dala.pawapaykotlin.network.dto.shared.AccountDetails
 import kotlinx.serialization.Serializable
 
 @Serializable

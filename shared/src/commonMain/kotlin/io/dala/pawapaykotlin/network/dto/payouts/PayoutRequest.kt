@@ -7,8 +7,5 @@ data class PayoutRequest(
     val payoutId: String,
     val amount: String,
     val currency: String,
-    val correspondent: String,
-    val recipient: PayoutRecipient,
-    val statementDescription: String,
-    val customerTimestamp: String
+    val recipient: Recipient,
 )

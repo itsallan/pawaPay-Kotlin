@@ -14,7 +14,8 @@ import io.ktor.client.request.setBody
 class PawaPayApi(private val client: HttpClient) {
 
     /**
-     * Initiate a Mobile Money Deposit (Collection)
+     * Initiates a deposit (Collection).
+     * POST https://api.sandbox.pawapay.io/v2/deposits
      */
     suspend fun initiateDeposit(request: DepositRequest): DepositResponse {
         return client.post("deposits") {
@@ -23,7 +24,8 @@ class PawaPayApi(private val client: HttpClient) {
     }
 
     /**
-     * Initiate a Mobile Money Payout (Disbursement)
+     * Initiates a payout (Disbursement).
+     * POST https://api.sandbox.pawapay.io/v2/payouts
      */
     suspend fun initiatePayout(request: PayoutRequest): PayoutResponse {
         return client.post("payouts") {
@@ -32,9 +34,10 @@ class PawaPayApi(private val client: HttpClient) {
     }
 
     /**
-     * Fetch status for any transaction type using a dynamic path
+     * Fetches the current status of any transaction.
+     * GET https://api.sandbox.pawapay.io/v2/{path}/{id}
      */
-    suspend fun getStatus(id: String, path: String = "deposits"): StatusResponse {
+    suspend fun getStatus(id: String, path: String): StatusResponse {
         return client.get("$path/$id").body()
     }
 }

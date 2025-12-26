@@ -22,7 +22,7 @@ interface PawaPayRepository {
         description: String
     ): Result<PayoutResponse>
 
-    suspend fun getTransactionStatus(id: String): Result<StatusResponse>
+    suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse>
 
     suspend fun pollTransactionStatus(
         id: String,

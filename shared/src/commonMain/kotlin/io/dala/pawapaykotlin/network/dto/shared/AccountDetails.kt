@@ -1,4 +1,4 @@
-package io.dala.pawapaykotlin.network.dto.payouts
+package io.dala.pawapaykotlin.network.dto.shared
 
 import kotlinx.serialization.Serializable
 

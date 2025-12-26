@@ -21,14 +21,19 @@ fun appModule(baseUrl: String, apiToken: String) = module {
     single {
         HttpClient {
             install(Logging) {
-                logger = Logger.DEFAULT
-                level = LogLevel.INFO
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        println("HTTP Client: $message")
+                    }
+                }
+                level = LogLevel.ALL
             }
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
                     prettyPrint = true
                     isLenient = true
+                    encodeDefaults = true
                 })
             }
             defaultRequest {

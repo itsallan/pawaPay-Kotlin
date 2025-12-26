@@ -2,12 +2,15 @@ package io.dala.pawapaykotlin.repository
 
 import io.dala.pawapaykotlin.domain.TransactionType
 import io.dala.pawapaykotlin.network.PawaPayApi
-import io.dala.pawapaykotlin.network.dto.deposits.*
-import io.dala.pawapaykotlin.network.dto.payouts.*
-import io.dala.pawapaykotlin.network.dto.shared.*
+import io.dala.pawapaykotlin.network.dto.deposits.DepositRequest
+import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
+import io.dala.pawapaykotlin.network.dto.deposits.Payer
+import io.dala.pawapaykotlin.network.dto.payouts.PayoutRequest
+import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
+import io.dala.pawapaykotlin.network.dto.payouts.Recipient
+import io.dala.pawapaykotlin.network.dto.shared.AccountDetails
+import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
 import io.dala.pawapaykotlin.util.generateUUID
-import io.ktor.client.plugins.*
-import io.ktor.client.statement.*
 import kotlinx.coroutines.delay
 
 class PawaPayRepositoryImpl(
@@ -19,30 +22,21 @@ class PawaPayRepositoryImpl(
         phoneNumber: String,
         currency: String,
         provider: String
-    ): Result<DepositResponse> {
-        return try {
-            val request = DepositRequest(
-                depositId = generateUUID(),
-                amount = amount,
-                currency = currency,
-                payer = Payer(
-                    type = "MMO",
-                    accountDetails = AccountDetails(
-                        phoneNumber = phoneNumber,
-                        provider = provider
-                    )
-                ),
-                customerMessage = "Payment of $amount $currency"
-            )
-
-            val response = api.initiateDeposit(request)
-            Result.success(response)
-        } catch (e: ResponseException) {
-            val errorBody = e.response.bodyAsText()
-            Result.failure(Exception(errorBody))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): Result<DepositResponse> = runCatching {
+        val request = DepositRequest(
+            depositId = generateUUID(),
+            amount = amount,
+            currency = currency,
+            payer = Payer(
+                type = "MMO",
+                accountDetails = AccountDetails(
+                    phoneNumber = phoneNumber,
+                    provider = provider
+                )
+            ),
+            customerMessage = "Payment of $amount $currency"
+        )
+        api.initiateDeposit(request)
     }
 
     override suspend fun sendPayout(
@@ -52,64 +46,61 @@ class PawaPayRepositoryImpl(
         currency: String,
         correspondent: String,
         description: String
-    ): Result<PayoutResponse> {
-        return try {
-            val request = PayoutRequest(
-                payoutId = payoutId,
-                amount = amount,
-                currency = currency,
-                correspondent = correspondent,
-                recipient = PayoutRecipient(
-                    address = PayoutAddress(value = phoneNumber)
-                ),
-                statementDescription = description,
-                customerTimestamp = kotlin.time.Clock.System.now().toString()
-            )
-
-            val response = api.initiatePayout(request)
-            Result.success(response)
-        } catch (e: ResponseException) {
-            val errorBody = e.response.bodyAsText()
-            Result.failure(Exception(errorBody))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): Result<PayoutResponse> = runCatching {
+        val request = PayoutRequest(
+            payoutId = payoutId,
+            amount = amount,
+            currency = currency,
+            recipient = Recipient(
+                type = "MMO",
+                accountDetails = AccountDetails(
+                    phoneNumber = phoneNumber,
+                    provider = correspondent
+                )
+            ),
+        )
+        api.initiatePayout(request)
     }
 
-    override suspend fun getTransactionStatus(id: String): Result<StatusResponse> {
-        return try {
-            val status = api.getStatus(id)
-            Result.success(status)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    override suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse> = runCatching {
+        api.getStatus(id, type.toPath())
     }
 
-    override suspend fun pollTransactionStatus(
-        id: String,
-        type: TransactionType
-    ): Result<StatusResponse> {
+    override suspend fun pollTransactionStatus(id: String, type: TransactionType): Result<StatusResponse> {
+        val path = type.toPath()
         val maxAttempts = 30
-        var attempts = 0
+        val interval = 5000L
 
-        while (attempts < maxAttempts) {
-            val statusResult = getTransactionStatus(id)
+        repeat(maxAttempts) { attempt ->
+            getTransactionStatus(id, type).onSuccess { response ->
+                if (response.status == "NOT_FOUND") {
+                    if (attempt >= 5) {
+                        return Result.failure(Exception("Transaction $id not found in $path system."))
+                    }
+                } else {
+                    val currentStatus = response.data?.status ?: response.status
 
-            statusResult.onSuccess { response ->
-                val actualStatus = response.data?.status ?: response.status
+                    when (currentStatus) {
+                        "COMPLETED" -> return Result.success(response)
 
-                when (actualStatus) {
-                    "COMPLETED" -> return Result.success(response)
-                    "FAILED", "REJECTED" -> {
-                        val message = response.data?.failureReason?.failureMessage ?: "Transaction failed"
-                        return Result.failure(Exception(message))
+                        "FAILED", "REJECTED" -> {
+                            val error = response.data?.failureReason?.failureMessage
+                                ?: "Transaction was rejected by the provider."
+                            return Result.failure(Exception(error))
+                        }
+
+                        "ENQUEUED" -> { /* Provider is temporarily down, pawaPay will retry automatically */ }
                     }
                 }
             }
-
-            attempts++
-            delay(4000)
+            delay(interval)
         }
-        return Result.failure(Exception("Transaction timed out after $maxAttempts attempts"))
+
+        return Result.failure(Exception("Timed out waiting for $id to reach a final status."))
+    }
+
+    private fun TransactionType.toPath() = when (this) {
+        TransactionType.DEPOSIT -> "deposits"
+        TransactionType.PAYOUT -> "payouts"
     }
 }
