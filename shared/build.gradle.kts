@@ -96,7 +96,7 @@ afterEvaluate {
             create<MavenPublication>("maven") {
                 groupId = "com.github.itsallan"
                 artifactId = "shared"
-                version = "1.0.0-alpha04"
+                version = "1.0.0-alpha05"
 
                 if (kotlinMultiplatform != null) {
                     from(kotlinMultiplatform)
