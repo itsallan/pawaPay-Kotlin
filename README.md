@@ -45,11 +45,30 @@ initKoin(
     apiToken = "YOUR_PAWAPAY_TOKEN"
 )
 ```
+### Initiate a Payout (Disbursement)
+Send money to a customer's wallet. This follows the strict pawaPay v2 schema using the `recipient` and `accountDetails` structure.
 
-### Initiate a Deposit
+```kotlin
+val repository: PawaPayRepository = koin.get()
+val requestId = generateUUID()
+
+val result = repository.sendPayout(
+    payoutId = requestId,
+    amount = "500",
+    phoneNumber = "256778529661",
+    currency = "UGX",
+    correspondent = "MTN_MOMO_UGA",
+    description = "Withdrawal"
+)
+
+result.onSuccess { response ->
+    // Initiation successful, status will be "ACCEPTED"
+    pollTransaction(response.payoutId, TransactionType.PAYOUT)
+}
+```
+
+### Initiate a Deposit (Collection)
 Request a payment from a user by specifying the amount, phone number, and provider.
-
-
 
 ```kotlin
 val repository: PawaPayRepository = koin.get()
@@ -68,17 +87,17 @@ result.onSuccess { depositResponse ->
 ```
 
 ### Poll for Final Status
-Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED` or `FAILED`).
+Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED`, `FAILED` or `REJECTED`).
 
 ```kotlin
-suspend fun pollPayment(id: String) {
-    repository.pollDepositStatus(id).fold(
+suspend fun pollTransaction(id: String, type: TransactionType) {
+    repository.pollTransactionStatus(id, type).fold(
         onSuccess = { response ->
             // Success: response.data contains the final status
             println("Payment Successful: ${response.data?.status}")
         },
         onFailure = { error ->
-            println("Payment Failed: ${error.message}")
+            println("Transaction Failed: ${error.message}")
         }
     )
 }
@@ -87,16 +106,16 @@ suspend fun pollPayment(id: String) {
 ##  Roadmap & Capabilities
 
 ### What it handles now
-* **Deposit Initiation**: Support for pawaPay v2 `MMO` (Mobile Money) payments.
-* **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
-* **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
-* **KMP Support**: Shared logic for both Android and iOS targets.
+- [x] **Deposit Initiation**: Support for pawaPay v2 `MMO` (Mobile Money) payments.
+- [x] **Payouts (Withdrawals)**: Send money to users directly from the SDK.
+- [x] **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
+- [x] **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
+- [x] **KMP Support**: Shared logic for both Android and iOS targets.
 
 ### Coming Soon (Roadmap)
-* **Payouts (Withdrawals)**: Send money to users directly from the SDK.
-* **Refunds**: Support for initiating and checking refund statuses.
-* **Signature Verification**: Enhanced security for signed API requests.
-* **Payment Page**: Integration with the hosted pawaPay payment page.
+- [ ] **Refunds**: Support for initiating and checking refund statuses.
+- [ ] **Signature Verification**: Enhanced security for signed API requests.
+- [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
 
 ---
 
