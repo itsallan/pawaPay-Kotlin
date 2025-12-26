@@ -1,5 +1,6 @@
-package io.dala.pawapaykotlin.models
+package io.dala.pawapaykotlin.network.dto.deposits
 
+import io.dala.pawapaykotlin.network.dto.deposits.Payer
 import kotlinx.serialization.Serializable
 
 @Serializable

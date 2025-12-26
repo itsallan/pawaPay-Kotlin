@@ -1,7 +1,9 @@
 package io.dala.pawapaykotlin.repository
 
-import io.dala.pawapaykotlin.models.DepositResponse
-import io.dala.pawapaykotlin.models.StatusResponse
+import io.dala.pawapaykotlin.domain.TransactionType
+import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
+import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
+import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
 
 interface PawaPayRepository {
     suspend fun pay(
@@ -11,6 +13,19 @@ interface PawaPayRepository {
         provider: String = "MTN_MOMO_UGA"
     ): Result<DepositResponse>
 
-    suspend fun getTransactionStatus(depositId: String): Result<StatusResponse>
-    suspend fun pollDepositStatus(depositId: String): Result<StatusResponse>
+    suspend fun sendPayout(
+        payoutId: String,
+        amount: String,
+        phoneNumber: String,
+        currency: String,
+        correspondent: String,
+        description: String
+    ): Result<PayoutResponse>
+
+    suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse>
+
+    suspend fun pollTransactionStatus(
+        id: String,
+        type: TransactionType
+    ): Result<StatusResponse>
 }
