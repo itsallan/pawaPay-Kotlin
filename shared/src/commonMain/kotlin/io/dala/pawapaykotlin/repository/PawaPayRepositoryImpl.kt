@@ -67,13 +67,15 @@ class PawaPayRepositoryImpl(
     override suspend fun refund(
         depositId: String,
         amount: String,
+        currency: String,
         refundId: String
     ): Result<RefundResponse> = runCatching {
         api.initiateRefund(
             RefundRequest(
                 refundId = refundId,
                 depositId = depositId,
-                amount = amount
+                amount = amount,
+                currency = currency
             )
         )
     }

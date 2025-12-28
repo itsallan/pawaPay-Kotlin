@@ -27,6 +27,7 @@ interface PawaPayRepository {
     suspend fun refund(
         depositId: String,
         amount: String,
+        currency: String,
         refundId: String = generateUUID()
     ): Result<RefundResponse>
 

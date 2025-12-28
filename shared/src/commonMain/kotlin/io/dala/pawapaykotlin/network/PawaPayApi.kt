@@ -35,6 +35,10 @@ class PawaPayApi(private val client: HttpClient) {
         }.body()
     }
 
+    /**
+     * Initiates a refund.
+     * POST https://api.sandbox.pawapay.io/v2/refunds
+     */
     suspend fun initiateRefund(request: RefundRequest): RefundResponse {
         return client.post("refunds") {
             setBody(request)

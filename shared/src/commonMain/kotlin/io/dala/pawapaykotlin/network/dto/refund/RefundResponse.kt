@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class RefundResponse(
     val refundId: String,
     val status: String,
-    val created: String
+    val created: String? = null
 )
