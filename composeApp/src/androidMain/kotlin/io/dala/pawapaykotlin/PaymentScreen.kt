@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import io.dala.pawapaykotlin.domain.TransactionType
 import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
+import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.PaymentUiState
 import io.dala.pawapaykotlin.repository.PawaPayRepository
 import io.dala.pawapaykotlin.util.generateUUID
@@ -111,6 +112,26 @@ fun PaymentScreen(repository: PawaPayRepository) {
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                if (tx.depositId != null) {
+                    Button(
+                        onClick = {
+                            processTransaction(
+                                scope = scope,
+                                repository = repository,
+                                type = TransactionType.REFUND,
+                                currency = tx.currency ?: "UGX",
+                                depositIdForRefund = tx.depositId,
+                                amount = tx.amount ?: "0"
+                            ) { uiState = it }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text("Request Refund")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
                 OutlinedButton(
                     onClick = { uiState = PaymentUiState.Idle },
                     modifier = Modifier.fillMaxWidth()
@@ -149,50 +170,50 @@ private fun processTransaction(
     scope: CoroutineScope,
     repository: PawaPayRepository,
     type: TransactionType,
+    depositIdForRefund: String? = null,
+    amount: String = "1000",
+    currency: String = "UGX",
     onStateChange: (PaymentUiState) -> Unit
 ) {
     onStateChange(PaymentUiState.Loading)
 
     scope.launch {
-        // We generate a local ID to track the attempt before the server responds
         val requestId = generateUUID()
 
-        val initialResult = if (type == TransactionType.DEPOSIT) {
-            repository.pay(amount = "1000", phoneNumber = "256778529661")
-        } else {
-            repository.sendPayout(
-                payoutId = requestId,
-                amount = "500",
-                phoneNumber = "256778529661",
-                currency = "UGX",
-                correspondent = "MTN_MOMO_UGA",
-                description = "SDK Test Payout"
-            )
+        val initialResult = when (type) {
+            TransactionType.DEPOSIT -> {
+                repository.pay(amount = amount, phoneNumber = "256778529661")
+            }
+            TransactionType.PAYOUT -> {
+                repository.sendPayout(
+                    payoutId = requestId,
+                    amount = "500",
+                    phoneNumber = "256778529661",
+                    currency = "UGX",
+                    correspondent = "MTN_MOMO_UGA",
+                    description = "SDK Test Payout"
+                )
+            }
+            TransactionType.REFUND -> {
+                repository.refund(
+                    depositId = depositIdForRefund!!,
+                    currency = currency,
+                    amount = amount
+                )
+            }
         }
 
         initialResult.fold(
             onSuccess = { response ->
-                // The status tells us if pawaPay accepted the request into their queue
-                val status = when (response) {
-                    is DepositResponse -> response.status
-                    is PayoutResponse -> response.status
-                    else -> "UNKNOWN"
-                }
-
-                // We prefer the ID returned by pawaPay but fall back to our local ID if needed
+                // Map the resulting ID based on what pawaPay returns
                 val confirmedId = when (response) {
                     is DepositResponse -> response.depositId
                     is PayoutResponse -> response.payoutId
+                    is RefundResponse -> response.refundId
                     else -> requestId
                 }
 
-                // If REJECTED, the transaction won't be processed; we stop here
-                if (status == "REJECTED") {
-                    onStateChange(PaymentUiState.Error("The transaction was rejected. Please check your account balance."))
-                    return@fold
-                }
-
-                // Since these are asynchronous, we poll to wait for the final outcome
+                // Polling works exactly the same way for all types
                 val finalStatusResult = repository.pollTransactionStatus(confirmedId, type)
 
                 onStateChange(
@@ -200,16 +221,16 @@ private fun processTransaction(
                         onSuccess = { statusResponse ->
                             statusResponse.data?.let {
                                 PaymentUiState.Success(it)
-                            } ?: PaymentUiState.Error("We couldn't retrieve the final status.")
+                            } ?: PaymentUiState.Error("Refund accepted but status data is missing.")
                         },
                         onFailure = { error ->
-                            PaymentUiState.Error(error.message ?: "The request timed out.")
+                            PaymentUiState.Error(error.message ?: "Refund status check timed out.")
                         }
                     )
                 )
             },
             onFailure = { error ->
-                onStateChange(PaymentUiState.Error("Network error: ${error.message}"))
+                onStateChange(PaymentUiState.Error("Could not start refund: ${error.message}"))
             }
         )
     }

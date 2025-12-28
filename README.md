@@ -85,22 +85,34 @@ result.onSuccess { depositResponse ->
     pollPayment(depositResponse.depositId)
 }
 ```
+### Initiate a Refund
+Return funds from a successful deposit back to the customer's wallet.
+
+```kotlin
+val result = repository.refund(
+    depositId = "ORIGINAL_DEPOSIT_ID",
+    amount = "1000",
+    currency = "UGX"
+)
+
+result.onSuccess { response ->
+    // Initiation successful, poll for final status
+    pollTransaction(response.refundId, TransactionType.REFUND)
+}
+```
 
 ### Poll for Final Status
 Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED`, `FAILED` or `REJECTED`).
 
 ```kotlin
-suspend fun pollTransaction(id: String, type: TransactionType) {
-    repository.pollTransactionStatus(id, type).fold(
-        onSuccess = { response ->
-            // Success: response.data contains the final status
-            println("Payment Successful: ${response.data?.status}")
-        },
-        onFailure = { error ->
-            println("Transaction Failed: ${error.message}")
-        }
-    )
-}
+repository.pollTransactionStatus(id, TransactionType.REFUND).fold(
+    onSuccess = { response ->
+        println("Status: ${response.data?.status}")
+    },
+    onFailure = { error ->
+        println("Error: ${error.message}")
+    }
+)
 ```
 
 ##  Roadmap & Capabilities
@@ -111,9 +123,9 @@ suspend fun pollTransaction(id: String, type: TransactionType) {
 - [x] **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
 - [x] **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
 - [x] **KMP Support**: Shared logic for both Android and iOS targets.
+- [x] **Refunds**: Support for initiating and checking refund statuses.
 
 ### Coming Soon (Roadmap)
-- [ ] **Refunds**: Support for initiating and checking refund statuses.
 - [ ] **Signature Verification**: Enhanced security for signed API requests.
 - [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
 

@@ -3,7 +3,9 @@ package io.dala.pawapaykotlin.repository
 import io.dala.pawapaykotlin.domain.TransactionType
 import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
+import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
+import io.dala.pawapaykotlin.util.generateUUID
 
 interface PawaPayRepository {
     suspend fun pay(
@@ -21,6 +23,13 @@ interface PawaPayRepository {
         correspondent: String,
         description: String
     ): Result<PayoutResponse>
+
+    suspend fun refund(
+        depositId: String,
+        amount: String,
+        currency: String,
+        refundId: String = generateUUID()
+    ): Result<RefundResponse>
 
     suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse>
 
