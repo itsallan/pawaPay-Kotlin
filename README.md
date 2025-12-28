@@ -21,7 +21,7 @@ Add this to your `commonMain` source set:
 ```kotlin
 sourceSets {
     commonMain.dependencies {
-        implementation("com.github.itsallan.PawapayKotlin:shared:1.0.0-alpha05")
+        implementation("com.github.itsallan.PawapayKotlin:shared:1.0.0-alpha06")
     }
 }
 ```
@@ -31,7 +31,7 @@ If you are using this in a standard Android app:
 
 ```kotlin
 dependencies {
-    implementation("com.github.itsallan.PawapayKotlin:shared-android:1.0.0-alpha05")
+    implementation("com.github.itsallan.PawapayKotlin:shared-android:1.0.0-alpha06")
 }
 ```
 
