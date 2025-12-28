@@ -82,11 +82,6 @@ val result = repository.refund(
     amount = "1000",
     currency = "UGX"
 )
-
-result.onSuccess { depositResponse ->
-    // Request accepted by pawaPay, now wait for final status
-    pollPayment(depositResponse.depositId)
-}
 ```
 
 ### Poll for Final Status
