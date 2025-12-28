@@ -45,30 +45,9 @@ initKoin(
     apiToken = "YOUR_PAWAPAY_TOKEN"
 )
 ```
-### Initiate a Payout (Disbursement)
-Send money to a customer's wallet. This follows the strict pawaPay v2 schema using the `recipient` and `accountDetails` structure.
-
-```kotlin
-val repository: PawaPayRepository = koin.get()
-val requestId = generateUUID()
-
-val result = repository.sendPayout(
-    payoutId = requestId,
-    amount = "500",
-    phoneNumber = "256778529661",
-    currency = "UGX",
-    correspondent = "MTN_MOMO_UGA",
-    description = "Withdrawal"
-)
-
-result.onSuccess { response ->
-    // Initiation successful, status will be "ACCEPTED"
-    pollTransaction(response.payoutId, TransactionType.PAYOUT)
-}
-```
 
 ### Initiate a Deposit (Collection)
-Request a payment from a user by specifying the amount, phone number, and provider.
+Request money from a customer's wallet.
 
 ```kotlin
 val repository: PawaPayRepository = koin.get()
@@ -79,12 +58,21 @@ val result = repository.pay(
     currency = "UGX",
     provider = "MTN_MOMO_UGA"
 )
-
-result.onSuccess { depositResponse ->
-    // Request accepted by pawaPay, now wait for final status
-    pollPayment(depositResponse.depositId)
-}
 ```
+### Initiate a Payout (Disbursement)
+Send money to a customer's wallet.
+
+```kotlin
+val result = repository.sendPayout(
+    payoutId = generateUUID(),
+    amount = "500",
+    phoneNumber = "256778529661",
+    currency = "UGX",
+    correspondent = "MTN_MOMO_UGA",
+    description = "User Withdrawal"
+)
+```
+
 ### Initiate a Refund
 Return funds from a successful deposit back to the customer's wallet.
 
@@ -95,9 +83,9 @@ val result = repository.refund(
     currency = "UGX"
 )
 
-result.onSuccess { response ->
-    // Initiation successful, poll for final status
-    pollTransaction(response.refundId, TransactionType.REFUND)
+result.onSuccess { depositResponse ->
+    // Request accepted by pawaPay, now wait for final status
+    pollPayment(depositResponse.depositId)
 }
 ```
 
@@ -105,7 +93,8 @@ result.onSuccess { response ->
 Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED`, `FAILED` or `REJECTED`).
 
 ```kotlin
-repository.pollTransactionStatus(id, TransactionType.REFUND).fold(
+// Works for any TransactionType (DEPOSIT, PAYOUT, or REFUND)
+repository.pollTransactionStatus(id, TransactionType.DEPOSIT).fold(
     onSuccess = { response ->
         println("Status: ${response.data?.status}")
     },
@@ -126,6 +115,7 @@ repository.pollTransactionStatus(id, TransactionType.REFUND).fold(
 - [x] **Refunds**: Support for initiating and checking refund statuses.
 
 ### Coming Soon (Roadmap)
+- [ ] **Refunds**: Support for initiating and checking refund statuses.
 - [ ] **Signature Verification**: Enhanced security for signed API requests.
 - [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
 
@@ -133,12 +123,9 @@ repository.pollTransactionStatus(id, TransactionType.REFUND).fold(
 
 ## Real-Life Example
 
-For a complete, working implementation including a Compose Multiplatform UI, check out the `composeApp` module in this repository.
+Check out the `composeApp` module in this repository for a complete implementation. It includes:
 
-It demonstrates:
-* **UI State Management**: Handling `Idle`, `Loading`, `Success`, and `Error` states reactively.
-* **Architecture**: Integrating the Repository with a ViewModel or Screen-level Coroutine Scope.
-* **Error Handling**: Practical examples of how to display failed transaction messages to the user.
+* **UI State Management**: Handling `Loading`, `Success`, and `Error`states with Jetpack Compose.
 
 ---
 
