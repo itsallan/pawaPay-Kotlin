@@ -8,6 +8,8 @@ import io.dala.pawapaykotlin.network.dto.deposits.Payer
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutRequest
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
 import io.dala.pawapaykotlin.network.dto.payouts.Recipient
+import io.dala.pawapaykotlin.network.dto.refund.RefundRequest
+import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.AccountDetails
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
 import io.dala.pawapaykotlin.util.generateUUID
@@ -62,6 +64,20 @@ class PawaPayRepositoryImpl(
         api.initiatePayout(request)
     }
 
+    override suspend fun refund(
+        depositId: String,
+        amount: String,
+        refundId: String
+    ): Result<RefundResponse> = runCatching {
+        api.initiateRefund(
+            RefundRequest(
+                refundId = refundId,
+                depositId = depositId,
+                amount = amount
+            )
+        )
+    }
+
     override suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse> = runCatching {
         api.getStatus(id, type.toPath())
     }
@@ -102,5 +118,6 @@ class PawaPayRepositoryImpl(
     private fun TransactionType.toPath() = when (this) {
         TransactionType.DEPOSIT -> "deposits"
         TransactionType.PAYOUT -> "payouts"
+        TransactionType.REFUND -> "refunds"
     }
 }

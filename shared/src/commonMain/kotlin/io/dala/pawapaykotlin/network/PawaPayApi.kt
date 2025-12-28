@@ -4,6 +4,8 @@ import io.dala.pawapaykotlin.network.dto.deposits.DepositRequest
 import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutRequest
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
+import io.dala.pawapaykotlin.network.dto.refund.RefundRequest
+import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -29,6 +31,12 @@ class PawaPayApi(private val client: HttpClient) {
      */
     suspend fun initiatePayout(request: PayoutRequest): PayoutResponse {
         return client.post("payouts") {
+            setBody(request)
+        }.body()
+    }
+
+    suspend fun initiateRefund(request: RefundRequest): RefundResponse {
+        return client.post("refunds") {
             setBody(request)
         }.body()
     }

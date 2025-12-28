@@ -5,5 +5,6 @@ package io.dala.pawapaykotlin.domain
  */
 enum class TransactionType {
     DEPOSIT,
-    PAYOUT
+    PAYOUT,
+    REFUND
 }
