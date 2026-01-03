@@ -84,6 +84,17 @@ val result = repository.refund(
 )
 ```
 
+## Check Wallet Balances
+Return available funds for a specific country & currency.
+
+```kotlin
+repository.getWalletBalances(country = "UGA").onSuccess { response ->
+    response.balances.forEach { wallet ->
+        println("Currency: ${wallet.currency} | Balance: ${wallet.balance}")
+    }
+}
+```
+
 ### Poll for Final Status
 Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED`, `FAILED` or `REJECTED`).
 
@@ -102,17 +113,17 @@ repository.pollTransactionStatus(id, TransactionType.DEPOSIT).fold(
 ##  Roadmap & Capabilities
 
 ### What it handles now
-- [x] **Deposit Initiation**: Support for pawaPay v2 `MMO` (Mobile Money) payments.
+- [x] **Deposit Initiation**: Support for initiating `MMO` (Mobile Money) payments.
 - [x] **Payouts (Withdrawals)**: Send money to users directly from the SDK.
 - [x] **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
 - [x] **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
 - [x] **KMP Support**: Shared logic for both Android and iOS targets.
 - [x] **Refunds**: Support for initiating and checking refund statuses.
+- [x] **Wallet Balance**: Real-time checking of merchant account funds.
 
 ### Coming Soon (Roadmap)
 - [ ] **Signature Verification**: Enhanced security for signed API requests.
 - [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
-- [ ] **Wallet Balance**: Real-time checking of merchant account funds.
 - [ ] **Predict Provider**: Utilities to verify phone numbers and provider codes for different regions.
 
 ---
