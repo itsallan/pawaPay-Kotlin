@@ -110,7 +110,6 @@ repository.pollTransactionStatus(id, TransactionType.DEPOSIT).fold(
 - [x] **Refunds**: Support for initiating and checking refund statuses.
 
 ### Coming Soon (Roadmap)
-- [ ] **Refunds**: Support for initiating and checking refund statuses.
 - [ ] **Signature Verification**: Enhanced security for signed API requests.
 - [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
 
