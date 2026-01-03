@@ -131,11 +131,11 @@ repository.pollTransactionStatus(id, TransactionType.DEPOSIT).fold(
 - [x] **KMP Support**: Shared logic for both Android and iOS targets.
 - [x] **Refunds**: Support for initiating and checking refund statuses.
 - [x] **Wallet Balance**: Real-time checking of merchant account funds.
+- [x] **Predict Provider**: Utilities to verify phone numbers and provider codes for different regions.
 
 ### Coming Soon (Roadmap)
 - [ ] **Signature Verification**: Enhanced security for signed API requests.
 - [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
-- [ ] **Predict Provider**: Utilities to verify phone numbers and provider codes for different regions.
 
 ---
 
