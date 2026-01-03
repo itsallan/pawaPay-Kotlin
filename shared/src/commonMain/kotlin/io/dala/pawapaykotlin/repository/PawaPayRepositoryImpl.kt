@@ -12,6 +12,7 @@ import io.dala.pawapaykotlin.network.dto.refund.RefundRequest
 import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.AccountDetails
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
+import io.dala.pawapaykotlin.network.dto.wallet.WalletBalanceResponse
 import io.dala.pawapaykotlin.util.generateUUID
 import kotlinx.coroutines.delay
 
@@ -78,6 +79,15 @@ class PawaPayRepositoryImpl(
                 currency = currency
             )
         )
+    }
+
+    override suspend fun getWalletBalances(country: String?): Result<WalletBalanceResponse> {
+        return try {
+            val response = api.getWalletBalances(country)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse> = runCatching {

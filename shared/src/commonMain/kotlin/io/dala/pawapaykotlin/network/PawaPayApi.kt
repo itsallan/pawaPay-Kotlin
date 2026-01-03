@@ -7,9 +7,11 @@ import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
 import io.dala.pawapaykotlin.network.dto.refund.RefundRequest
 import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
+import io.dala.pawapaykotlin.network.dto.wallet.WalletBalanceResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
@@ -42,6 +44,17 @@ class PawaPayApi(private val client: HttpClient) {
     suspend fun initiateRefund(request: RefundRequest): RefundResponse {
         return client.post("refunds") {
             setBody(request)
+        }.body()
+    }
+
+    /**
+     * Fetches current balances for configured merchant wallets.
+     * Optional country filter uses ISO 3166-1 alpha-3 format (e.g., "UGA").
+     * GET https://api.sandbox.pawapay.io/v2/wallet-balances
+     */
+    suspend fun getWalletBalances(country: String? = null): WalletBalanceResponse {
+        return client.get("wallet-balances") {
+            country?.let { parameter("country", it) }
         }.body()
     }
 
