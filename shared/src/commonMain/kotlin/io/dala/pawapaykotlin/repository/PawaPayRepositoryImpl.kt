@@ -12,6 +12,7 @@ import io.dala.pawapaykotlin.network.dto.refund.RefundRequest
 import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.AccountDetails
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
+import io.dala.pawapaykotlin.network.dto.toolkit.PredictProviderResponse
 import io.dala.pawapaykotlin.network.dto.wallet.WalletBalanceResponse
 import io.dala.pawapaykotlin.util.generateUUID
 import kotlinx.coroutines.delay
@@ -88,6 +89,10 @@ class PawaPayRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun predictProvider(phoneNumber: String): Result<PredictProviderResponse> = runCatching {
+        api.predictProvider(phoneNumber)
     }
 
     override suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse> = runCatching {

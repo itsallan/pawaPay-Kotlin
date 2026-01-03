@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,7 @@ import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
 import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.PaymentUiState
+import io.dala.pawapaykotlin.network.dto.toolkit.PredictProviderResponse
 import io.dala.pawapaykotlin.repository.PawaPayRepository
 import io.dala.pawapaykotlin.util.generateUUID
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +43,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun PaymentScreen(repository: PawaPayRepository) {
     val scope = rememberCoroutineScope()
+    var phoneInput by remember { mutableStateOf("") }
+    var predictedProvider by remember { mutableStateOf<PredictProviderResponse?>(null) }
     var uiState by remember { mutableStateOf<PaymentUiState>(PaymentUiState.Idle) }
     var walletBalance by remember { mutableStateOf<String?>(null) }
 
@@ -66,6 +70,29 @@ fun PaymentScreen(repository: PawaPayRepository) {
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 8.dp)
                     )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                TextField(
+                    value = phoneInput,
+                    onValueChange = { input ->
+                        phoneInput = input
+                        if (input.length >= 10) {
+                            scope.launch {
+                                repository.predictProvider(input).onSuccess {
+                                    predictedProvider = it
+                                }.onFailure {
+                                    predictedProvider = null
+                                }
+                            }
+                        }
+                    },
+                    label = { Text("Phone Number") }
+                )
+
+                predictedProvider?.let {
+                    Text("Detected: ${it.provider} (${it.country})", color = Color.Gray)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

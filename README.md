@@ -95,6 +95,17 @@ repository.getWalletBalances(country = "UGA").onSuccess { response ->
 }
 ```
 
+## Predict Provider
+Automatically detect the mobile network and country from a phone number.
+
+```kotlin
+repository.predictProvider("256778000000").onSuccess { result ->
+    println("Country: ${result.country}")
+    println("Provider: ${result.provider}")
+    println("Sanitized: ${result.phoneNumber}")
+}
+```
+
 ### Poll for Final Status
 Mobile money transactions are asynchronous. Use the polling utility to wait for a terminal state (`COMPLETED`, `FAILED` or `REJECTED`).
 
