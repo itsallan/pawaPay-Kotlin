@@ -128,7 +128,6 @@ repository.pollTransactionStatus(id, TransactionType.DEPOSIT).fold(
 - [x] **Payouts (Withdrawals)**: Send money to users directly from the SDK.
 - [x] **Smart Polling**: Automatic handling of `NOT_FOUND` and `PROCESSING` states.
 - [x] **Nested Data Mapping**: Correct parsing of the v2 `StatusResponse` data objects.
-- [x] **KMP Support**: Shared logic for both Android and iOS targets.
 - [x] **Refunds**: Support for initiating and checking refund statuses.
 - [x] **Wallet Balance**: Real-time checking of merchant account funds.
 - [x] **Predict Provider**: Utilities to verify phone numbers and provider codes for different regions.
