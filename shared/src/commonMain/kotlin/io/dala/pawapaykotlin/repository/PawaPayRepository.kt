@@ -5,6 +5,7 @@ import io.dala.pawapaykotlin.network.dto.deposits.DepositResponse
 import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
 import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
+import io.dala.pawapaykotlin.network.dto.wallet.WalletBalanceResponse
 import io.dala.pawapaykotlin.util.generateUUID
 
 interface PawaPayRepository {
@@ -30,6 +31,8 @@ interface PawaPayRepository {
         currency: String,
         refundId: String = generateUUID()
     ): Result<RefundResponse>
+
+    suspend fun getWalletBalances(country: String? = null): Result<WalletBalanceResponse>
 
     suspend fun getTransactionStatus(id: String, type: TransactionType): Result<StatusResponse>
 

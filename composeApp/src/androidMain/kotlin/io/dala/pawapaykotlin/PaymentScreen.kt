@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 fun PaymentScreen(repository: PawaPayRepository) {
     val scope = rememberCoroutineScope()
     var uiState by remember { mutableStateOf<PaymentUiState>(PaymentUiState.Idle) }
+    var walletBalance by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -57,6 +58,15 @@ fun PaymentScreen(repository: PawaPayRepository) {
                     text = "pawaPay SDK test",
                     style = MaterialTheme.typography.headlineMedium,
                 )
+
+                walletBalance?.let {
+                    Text(
+                        text = "Current Balance: $it",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -80,6 +90,22 @@ fun PaymentScreen(repository: PawaPayRepository) {
                         }
                     }
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            repository.getWalletBalances("UGA").onSuccess { response ->
+                                val mainWallet = response.balances.firstOrNull()
+                                walletBalance = "${mainWallet?.balance} ${mainWallet?.currency}"
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Check Wallet Balance")
+                }
             }
 
             is PaymentUiState.Loading -> {
