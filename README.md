@@ -1,6 +1,6 @@
 # pawaPay Kotlin SDK
 
-A lightweight Kotlin Multiplatform SDK for integrating **pawaPay ** MOMO payments into Android and iOS applications.
+A lightweight Kotlin Multiplatform SDK for integrating pawaPay MOMO payments into Android and iOS applications.
 
 [![](https://jitpack.io/v/itsallan/PawapayKotlin.svg)](https://jitpack.io/#itsallan/PawapayKotlin)
 
