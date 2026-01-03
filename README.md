@@ -1,4 +1,4 @@
-# pawaPay Kotlin SDK (KMP)
+# pawaPay Kotlin SDK
 
 A lightweight Kotlin Multiplatform SDK for integrating **pawaPay ** MOMO payments into Android and iOS applications.
 
