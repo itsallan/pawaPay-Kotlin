@@ -7,6 +7,8 @@ import io.dala.pawapaykotlin.network.dto.payouts.PayoutResponse
 import io.dala.pawapaykotlin.network.dto.refund.RefundRequest
 import io.dala.pawapaykotlin.network.dto.refund.RefundResponse
 import io.dala.pawapaykotlin.network.dto.shared.StatusResponse
+import io.dala.pawapaykotlin.network.dto.toolkit.PredictProviderRequest
+import io.dala.pawapaykotlin.network.dto.toolkit.PredictProviderResponse
 import io.dala.pawapaykotlin.network.dto.wallet.WalletBalanceResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -55,6 +57,16 @@ class PawaPayApi(private val client: HttpClient) {
     suspend fun getWalletBalances(country: String? = null): WalletBalanceResponse {
         return client.get("wallet-balances") {
             country?.let { parameter("country", it) }
+        }.body()
+    }
+
+    /**
+     * Predicts the provider for a specified phone number.
+     * POST https://api.sandbox.pawapay.io/v2/predict-provider
+     */
+    suspend fun predictProvider(phoneNumber: String): PredictProviderResponse {
+        return client.post("predict-provider") {
+            setBody(PredictProviderRequest(phoneNumber))
         }.body()
     }
 
