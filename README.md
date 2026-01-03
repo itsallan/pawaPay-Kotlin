@@ -1,6 +1,6 @@
 # pawaPay Kotlin SDK (KMP)
 
-A lightweight Kotlin Multiplatform (KMP) SDK for integrating **pawaPay v2** mobile money payments into Android and iOS applications.
+A lightweight Kotlin Multiplatform SDK for integrating **pawaPay ** MOMO payments into Android and iOS applications.
 
 [![](https://jitpack.io/v/itsallan/PawapayKotlin.svg)](https://jitpack.io/#itsallan/PawapayKotlin)
 
