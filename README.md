@@ -112,6 +112,8 @@ repository.pollTransactionStatus(id, TransactionType.DEPOSIT).fold(
 ### Coming Soon (Roadmap)
 - [ ] **Signature Verification**: Enhanced security for signed API requests.
 - [ ] **Payment Page**: Integration with the hosted pawaPay payment page.
+- [ ] **Wallet Balance API**: Real-time checking of merchant account funds.
+- [ ] **Predict Provider**: Utilities to verify phone numbers and provider codes for different regions.
 
 ---
 
